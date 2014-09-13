@@ -14,9 +14,6 @@ class ChessBoard:
         for i in range(BLOCKS_IN_W):
             cel = [False]*BLOCKS_IN_H
             self.cells.append(cel)
-        self.cells[10][10], self.cells[11][10], self.cells[12][10] = True, True, True
-        self.cells[12][9] = True
-        self.cells[11][8] = True
         self._random()
 
     def _random(self):
