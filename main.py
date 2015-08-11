@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 import sys
 import copy
 import random
@@ -11,6 +12,8 @@ screen = pygame.display.set_mode(size)
 
 
 class ChessBoard:
+    stopped = False
+
     def __init__(self, screen):
         self.screen = screen
         self.cells = []
@@ -24,6 +27,15 @@ class ChessBoard:
             for y in range(BLOCKS_IN_H):
                 if random.choice([True, False]):
                     self.cells[x][y] = True
+
+    def change_state(self):
+        self.stopped = not self.stopped
+
+    def click_at(self, pos):
+        if self.stopped:
+            x, y = pos
+            block_x, block_y = x // BLOCK_W, y // BLOCK_H
+            self.cells[block_x][block_y] = not self.cells[block_x][block_y]
 
     def draw_net(self):
         color = (0, 0, 200)
@@ -61,6 +73,8 @@ class ChessBoard:
         return borders
 
     def next_step(self):
+        if self.stopped:
+            return
         cells = copy.deepcopy(self.cells)
         for x in range(BLOCKS_IN_W):
             for y in range(BLOCKS_IN_H):
@@ -74,15 +88,21 @@ class ChessBoard:
         self.cells = cells
 
 chess = ChessBoard(screen)
+clock = pygame.time.Clock()
 i = 0
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == K_SPACE:
+                chess.change_state()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            chess.click_at(pygame.mouse.get_pos())
 
     screen.fill((0, 0, 0))
     chess.draw_net()
     chess.draw_cells()
     pygame.display.flip()
-    pygame.time.wait(500)
     chess.next_step()
+    clock.tick(2)
